@@ -1,29 +1,34 @@
-
 const express = require('express');
-const app = express();
 const path = require('path');
-const port = process.env.PORT || 5000;
+const generatePassword = require('password-generator');
 
-//Static file declaration
+const app = express();
+
+// Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')));
 
-//production mode
-if(process.env.NODE_ENV === 'production'){
-    app.use(express.static(path.join(__dirname, 'client/build')));
-    app.get('*', (req, res) => {
-        res.sendfile(path.join(__dirname = 'client/build/index.html'));  
-    })
-}
+// Put all API endpoints under '/api'
+app.get('/api/passwords', (req, res) => {
+  const count = 5;
 
-//build mode
-app.get('*', (req, res) => {  
-    res.sendFile(path.join(__dirname+'/client/public/index.html'));
-})
+  // Generate some passwords
+  const passwords = Array.from(Array(count).keys()).map(i =>
+    generatePassword(12, false)
+  )
 
-//start server
-app.listen(port, (req, res) => {  console.log( `server listening on port: ${port}`);})
+  // Return them as json
+  res.json(passwords);
 
-// create a GET route
-app.get('/express_backend', (req, res) => {
-  res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' });
+  console.log(`Sent ${count} passwords`);
 });
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname+'/client/build/index.html'));
+});
+
+const port = process.env.PORT || 5000;
+app.listen(port);
+
+console.log(`Password generator listening on ${port}`);
