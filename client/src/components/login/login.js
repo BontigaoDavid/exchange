@@ -160,7 +160,7 @@ class Login extends Component {
                     </div>
                 )
 
-            ////////////////////////////// sign up interfaces
+            ////////////////////////////// Sign up interfaces
 
             //Sign up
             case 3:
@@ -251,6 +251,7 @@ class Login extends Component {
                     </div>
                 )
 
+            //Verification
             case 4:
                 return (
                     <div className={styles["login-container"]}>
