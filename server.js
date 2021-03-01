@@ -1,12 +1,12 @@
 const express = require('express');
 const path = require('path');
-const generatePassword = require('password-generator');
 
 const apiRoutes = require("./api");
 
 const app = express();
 
 app.use(express.static(path.join(__dirname, './client/build')));
+app.use(express.json());
 
 app.use("/api", apiRoutes);
 
