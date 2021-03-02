@@ -18,10 +18,9 @@ let loginFunctions = {
         res.send(response);
     },
     post: (req, res) => {
-        let encryptedCredentials = Buffer.from(req.body.hash);
+        let encryptedCredentials = req.body.hash;
 
-        console.log(encryptedCredentials);
-        console.log(encryptor.privateDecrypt(encryptedCredentials));
+        credentials = encryptor.privateDecrypt(encryptedCredentials);
         
 
         res.send("api/users/login post response");

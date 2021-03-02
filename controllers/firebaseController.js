@@ -13,6 +13,11 @@ let firebaseController = {
     let document = await db.collection(database).doc(docID).get();
 
     return document.data();
+  },
+  createDocument: async (database, document, data) => {
+    let res = await db.collection(database).doc(document).set(data);
+
+    return res;
   }
 }
 

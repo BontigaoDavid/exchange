@@ -1,15 +1,13 @@
-import crypto from "crypto";
+import RSA from "node-rsa";
+
+let publicRSAKey = new RSA();
+
+
 
 export default {
     publicEncrypt: (key, data) => {
-        let encryptedData = crypto.publicEncrypt(
-            {
-                key: key,
-                padding: crypto.constants.RSA_NO_PADDING,
-                oaepHash: "sha256",
-            }, Buffer.from(data)).toString("base64");
-
-        
+        publicRSAKey.importKey(key, "public");
+        let encryptedData = publicRSAKey.encrypt(data, "base64");
         return (encryptedData);
     }
 }

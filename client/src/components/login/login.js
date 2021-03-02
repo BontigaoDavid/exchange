@@ -273,6 +273,7 @@ class Login extends Component {
 
             //Sign up
             case 3:
+                Axios.get("/api").then(res => console.log(res));
                 return (
                     <div className={styles["login-container"]}>
                         <div className={styles.title}>

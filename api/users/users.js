@@ -1,14 +1,15 @@
-let controller = {
-    get: async (req, res) => {
-        let email = req.params.email;
+const firebaseController = require("../../controllers/firebaseController.js");
 
+let userFunctions = {
+    get: async (req, res) => {
         res.send("api/users et request")
     },
     post: async (req, res) => {
         let user = req.body;
-
-        // await db.collection("users").doc(user.email).set(user);
-        res.send("user created \n" + JSON.stringify(user));
+        console.log(req.body);
+        await firebaseController.createDocument("users", user.email, user).then(() => {
+            res.send(true);
+        });
     },
     put: (req, res) => {
         res.send("API/USERS/ put RESPONSE")
@@ -18,4 +19,4 @@ let controller = {
     }
 }
 
-module.exports = controller;
+module.exports = userFunctions;
