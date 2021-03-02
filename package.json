@@ -19,6 +19,7 @@
     "express": "^4.17.1",
     "firebase": "^8.2.9",
     "firebase-admin": "^9.5.0",
+    "node-rsa": "^1.1.1",
     "password-generator": "^2.3.2"
   }
 }

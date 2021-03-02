@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import styles from "./login.module.css";
+import encryptor from "../../algorithms/encryption.js";
+import Axios from "axios";
 
 class Login extends Component {
     constructor(props) {
@@ -13,8 +15,9 @@ class Login extends Component {
             isPasswordUppercase: false,
             isPasswordNumber: false,
             isPasswordSpecial: false,
-            isPasswordMatch: false,
+            isPasswordConfirmed: false,
             isEmailValid: false,
+            isZipcodeValid: false
         };
     }
 
@@ -24,12 +27,62 @@ class Login extends Component {
         });
     }
 
+    onZipcodechange = (event) => {
+        let zipcode = event.target.value;
+
+        
+        if (zipcode.length < 6)
+        this.setState({
+            zipcode: zipcode
+        });
+
+        if (zipcode.length === 5) {
+            this.setState({ isZipcodeValid: true });
+        }
+
+        else {
+            this.setState({ isZipcodeValid: false });
+        }
+    }
+
+    onNumberChange = (event) => {
+        let number = event.target.value;
+
+        if (number.length < 11)
+        this.setState({
+            number: number
+        });
+
+        if (number.length === 10) {
+            this.setState({ isNumberValid: true });
+        }
+
+        else {
+            this.setState({ isNumberValid: false });
+        }
+    }
+
+    onConfirmPasswordchange = (event) => {
+        let confirmPassword = event.target.value;
+        this.setState({
+            confirmPassword: confirmPassword
+        });
+        
+        if (confirmPassword === this.state.password) {
+            this.setState({ isPasswordConfirmed: true })
+        }
+
+        else {
+            this.setState({ isPasswordConfirmed: false })
+        }
+    }
+
     onPasswordchange = (event) => {
         let password = event.target.value;
         let specialCharacters = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
 
         this.setState({
-            [event.target.name]: event.target.value
+            password: password
         });
 
         if (specialCharacters.test(password)) {
@@ -88,6 +141,45 @@ class Login extends Component {
         }
     }
 
+    submitEmail = () => {
+        fetch('/api/users/login/' + this.state.email)
+        .then(res => res.json())
+        .then(
+            (result) => {
+                if (result.publicKey) {
+                    this.setState({
+                        interface: 1,
+                        firstName: result.firstname,
+                        publicKey: result.publicKey
+                    });
+                }
+
+                else {
+                    this.setState({
+                        signInError: true
+                    });
+                }
+            }
+        )
+    }
+
+    submitPassword = () => {
+        let credentials = {
+            email: this.state.email,
+            password: this.state.password
+        }
+
+        console.log(credentials);
+
+        let encryptedCredentials = encryptor.publicEncrypt(this.state.publicKey, JSON.stringify(credentials));
+        
+        console.log(encryptedCredentials);
+
+        Axios.post("/api/users/login/", { hash: encryptedCredentials });
+
+        this.setState({ interface: 2 })
+    }
+
     submitForm = () => {
         if 
         (
@@ -96,11 +188,25 @@ class Login extends Component {
             this.state.isPasswordUppercase &&
             this.state.isPasswordNumber &&
             this.state.isPasswordSpecial &&
-            this.state.isPasswordMatch &&
-            this.state.isEmailValid
+            this.state.isEmailValid &&
+            this.state.firstName &&
+            this.state.lastName &&
+            this.state.email &&
+            this.state.address &&
+            this.state.city &&
+            this.state.state &&
+            this.state.zipcode &&
+            this.state.country &&
+            this.state.password &&
+            this.state.isPasswordConfirmed &&
+            this.state.isZipcodeValid
         ) 
         {
             this.setState({ interface: 4});
+        }
+
+        else {
+            alert("Please complete entire form");
         }
     }
 
@@ -120,9 +226,12 @@ class Login extends Component {
                         <div>
                             <input className={styles["email-input"]} placeholder="Email" name="email" value={this.state.email} onChange={this.onInputchange}/>
                         </div>
+                        <div className={styles["email-error"]}>
+                            {(this.state.signInError ? "Email does not exist" : "")}
+                        </div>
                         <div className={styles["buttons-container"]}>
-                            <button className={styles["signup-button"]} onClick={() => this.setState({ interface: 3 })}>Create account</button>
-                            <button className={styles["next-button"]} onClick={() => this.setState({ interface: 1 })}>Next</button>
+                            <button className={styles["signup-button"]} onClick={() => this.setState({ interface: 3, firstName: "",  })}>Create account</button>
+                            <button className={styles["next-button"]} onClick={() => this.setState(this.submitEmail)}>Next</button>
                         </div>
                     </div>
                 );
@@ -132,7 +241,7 @@ class Login extends Component {
                 return (
                     <div className={styles["login-container"]}>
                         <div className={styles.title}>
-                            Welcome 
+                            Welcome, {this.state.firstName}
                         </div>
                         <div className={styles.subtitle}>
                             Enter password for {this.state.email}
@@ -141,13 +250,13 @@ class Login extends Component {
                             <input className={styles["email-input"]} placeholder="Password" type="password" name="password" value={this.state.password} onChange={this.onInputchange}/>
                         </div>
                         <div className={styles["buttons-container"]}>
-                            <button className={styles["signup-button"]} onClick={() => this.setState({ interface: 0, email: "" })}>Cancel</button>
-                            <button className={styles["next-button"]} onClick={() => this.setState({ interface: 2 })}>Sign In</button>
+                            <button className={styles["signup-button"]} onClick={() => this.setState({ interface: 0, signInError: false, email: "", firstName: "" })}>Cancel</button>
+                            <button className={styles["next-button"]} onClick={this.submitPassword}>Sign In</button>
                         </div>
                     </div>
                 )
 
-            //Loading
+            //Sigining In
             case 2:
                 return (
                     <div className={styles["login-container"]}>
@@ -181,6 +290,7 @@ class Login extends Component {
 
                             <input className={styles["signup-input"]} name="email" value={this.state.email} onChange={this.onEmailchange}/>
                             EMAIL
+                            
                             <br/>
                             <br/>
                             <div className={styles["input-requirements"]}>
@@ -188,6 +298,9 @@ class Login extends Component {
                                     Must be a valid email
                                 </span>
                             </div>
+
+                            <input className={styles["signup-input"]} name="number" value={this.state.number} onChange={this.onNumberChange}/>
+                            PHONE NUMBER
 
                             <input className={styles["signup-input"]} name="address" value={this.state.address} onChange={this.onInputchange}/>
                             STREET ADDRESS 
@@ -203,13 +316,13 @@ class Login extends Component {
                             <input className={styles["signup-input"]} name="state" value={this.state.state} onChange={this.onInputchange}/>
                             STATE/PROVINCE
 
-                            <input className={styles["signup-input"]} name="zipcode" value={this.state.zipcode} onChange={this.onInputchange}/>
+                            <input className={styles["signup-input"]} type="number" name="zipcode" value={this.state.zipcode} onChange={this.onZipcodechange}/>
                             ZIPCODE
 
                             <input className={styles["signup-input"]} name="country" value={this.state.country} onChange={this.onInputchange}/>
                             COUNTRY
 
-                            <input className={styles["signup-input"]} type="password" name="password" value={this.state.password} onChange={this.onPasswordchange}/>
+                            <input className={styles["signup-input"]} type="password" maxLength="50" name="password" value={this.state.password} onChange={this.onPasswordchange}/>
                             PASSWORD
 
                             <br/>
@@ -232,13 +345,13 @@ class Login extends Component {
                                 </span> <br/>
                             </div>
 
-                            <input className={styles["signup-input"]} type="password" name="confirmPassword" value={this.state.confirmPassword} onChange={this.onInputchange}/>
+                            <input className={styles["signup-input"]} type="password" name="confirmPassword" value={this.state.confirmPassword} onChange={this.onConfirmPasswordchange}/>
                             CONFIRM PASSWORD
 
                             <br/>
                             <br/>
                             <div className={styles["input-requirements"]}>
-                                <span className={this.state.isPasswordMatch ? styles.green : styles.red }>
+                                <span className={this.state.isPasswordConfirmed ? styles.green : styles.red }>
                                         Passwords must match
                                 </span>
                             </div>
