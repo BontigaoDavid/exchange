@@ -169,39 +169,66 @@ class Login extends Component {
             password: this.state.password
         }
 
-        console.log(credentials);
 
         let encryptedCredentials = encryptor.publicEncrypt(this.state.publicKey, JSON.stringify(credentials));
-        
-        console.log(encryptedCredentials);
 
-        Axios.post("/api/users/login/", { hash: encryptedCredentials });
+        Axios.post("/api/users/login/", { hash: encryptedCredentials })
+        .then((response) => {
+            let token = response.data;
 
-        this.setState({ interface: 2 })
+            if (token) {
+                sessionStorage.setItem("user-token", token);
+                this.setState({ interface: 2 })
+            }
+
+            else {
+                alert("Incorrect password");
+            }
+        });
+
     }
 
     submitForm = () => {
         if 
         (
-            this.state.isPasswordLong &&
-            this.state.isPasswordLowercase &&
-            this.state.isPasswordUppercase &&
-            this.state.isPasswordNumber &&
-            this.state.isPasswordSpecial &&
-            this.state.isEmailValid &&
-            this.state.firstName &&
-            this.state.lastName &&
-            this.state.email &&
-            this.state.address &&
-            this.state.city &&
-            this.state.state &&
-            this.state.zipcode &&
-            this.state.country &&
-            this.state.password &&
-            this.state.isPasswordConfirmed &&
-            this.state.isZipcodeValid
+            // this.state.isPasswordLong &&
+            // this.state.isPasswordLowercase &&
+            // this.state.isPasswordUppercase &&
+            // this.state.isPasswordNumber &&
+            // this.state.isPasswordSpecial &&
+            // this.state.isEmailValid &&
+            // this.state.firstName &&
+            // this.state.lastName &&
+            // this.state.email &&
+            // this.state.number &&
+            // this.state.address &&
+            // this.state.city &&
+            // this.state.state &&
+            // this.state.zipcode &&
+            // this.state.country &&
+            this.state.password 
+            // this.state.isPasswordConfirmed &&
+            // this.state.isZipcodeValid
         ) 
         {
+            let { firstName , lastName, email, number, address, city, state, zipcode, country, password } = this.state;
+            let userObj = {
+                firstname: firstName,
+                lastName: lastName,
+                email: email,
+                number: number,
+                address: address,
+                city: city,
+                state: state,
+                zipcode: zipcode,
+                country: country,
+                password: password
+            }
+
+            let encryptedUserObj = encryptor.publicEncrypt(this.state.publicKey, JSON.stringify(userObj));
+            
+
+            Axios.post("/api/users/", { hash: encryptedUserObj }).then((response) => { console.log(response.data) });
             this.setState({ interface: 4});
         }
 
@@ -273,7 +300,9 @@ class Login extends Component {
 
             //Sign up
             case 3:
-                Axios.get("/api").then(res => console.log(res));
+                Axios.get("/api").then((response) => {
+                    this.setState({ publicKey: response.data });
+                });
                 return (
                     <div className={styles["login-container"]}>
                         <div className={styles.title}>
