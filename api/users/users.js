@@ -1,26 +1,26 @@
-const admin = require('firebase-admin');
+const firebaseController = require("../../controllers/firebaseController.js");
+const encryptor = require("../../controllers/encryption.js");
+const bcrypt = require("bcrypt");
 
-const serviceAccount = require('../../firebase-private-key.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-const db = admin.firestore();
-
-let controller = {
+let userFunctions = {
     get: async (req, res) => {
-        let email = req.params.email;
-
-        let user = (await db.collection("users").doc(email).get()).data();
-        
-        res.send(user.firstname);
+        res.send("api/users get request")
     },
     post: async (req, res) => {
-        let user = req.body;
+        let encryptedUserObj = req.body.hash;
 
-        await db.collection("users").doc(user.email).set(user);
-        res.send("user created \n" + JSON.stringify(user));
+        let user = JSON.parse(encryptor.privateDecrypt(encryptedUserObj));
+
+        let userPassword = user.password;
+        delete user.password
+
+        bcrypt.hash(userPassword, 10, (err, hash) => {
+            console.log(hash)
+            user.hash = hash;
+            firebaseController.createDocument("users", user.email, user).then(() => {
+                res.send(true);
+            });
+        });
     },
     put: (req, res) => {
         res.send("API/USERS/ put RESPONSE")
@@ -30,4 +30,4 @@ let controller = {
     }
 }
 
-module.exports = controller;
+module.exports = userFunctions;
