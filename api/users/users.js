@@ -1,7 +1,7 @@
 const firebaseController = require("../../controllers/firebaseController.js");
 const encryptor = require("../../controllers/encryption.js");
 const bcrypt = require("bcrypt");
-const btcController = require("../../controllers/btcController.js")
+const walletController = require("../../controllers/walletController.js")
 
 let userFunctions = {
     get: async (req, res) => {
@@ -18,7 +18,7 @@ let userFunctions = {
         bcrypt.hash(userPassword, 10, (err, hash) => {
             user.hash = hash;
 
-            let btcDetails = btcController.generateKeyPairs();
+            let btcDetails = walletController.generateKeyPairs();
 
             user.BTC.address = btcDetails.address;
             user.BTC.publicKey = btcDetails.publicKey;
