@@ -1,10 +1,14 @@
 import React, { Component } from "react";
 
 class Home extends Component {
+    componentDidMount() {
+        window.location = "/login";
+    }
+
     render() {
         return (
             <div>
-                HOME
+                Redirecting...
             </div>
         )
     }
