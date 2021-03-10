@@ -14,10 +14,10 @@ let loginFunctions = {
             response = {
                 firstname: user.firstname,
                 email: user.email,
-                publicKey: publicKey
+                publicKey: encryptor.publicKey()
             }
-    
-            res.send(response);
+
+            res.json(response);
         }
 
         else {

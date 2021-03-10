@@ -1,35 +1,33 @@
 const RSA = require("node-rsa");
 
-let nodeRSA = new RSA().generateKeyPair();
-
-let publicKey = nodeRSA.exportKey("public");
-let privateKey = nodeRSA.exportKey("private");
-
-let publicRSAKey = new RSA();
 let privateRSAKey = new RSA();
+let publicKey = "";
+let isRSACertified = false;
 
-publicRSAKey.importKey(publicKey, "public");
-privateRSAKey.importKey(privateKey, "private");
-
-module.exports = {
-    publicKey: publicKey,
+let encryptor = {
+    isRSACertified: () => {
+        return isRSACertified;
+    },
+    publicKey: () => {
+        return publicKey;
+    },
+    setKeyPair: (pubKey, privKey) => {
+        publicKey = pubKey;
+        console.log("Public Key: " + pubKey)
+        privateRSAKey.importKey(privKey, "private");
+        isRSACertified = true;
+    },
     privateDecrypt: (encryptedData) => {    
         let decryptedData = privateRSAKey.decrypt(encryptedData, "utf8");
         
-        return (decryptedData)
+        return decryptedData
+    },
+    privateEncrypt: (data) => {
+        let encryptedData = privateRSAKey.encrypt(data, "base64");
+
+        return encryptedData
     }
 }
 
+module.exports = encryptor;
 
-////////////////////////    Encryption and Decryption
-// console.log(publicKey); 
-// console.log(privateKey); 
-
-// let data = "Hello World!"
-// console.log("Data: " + data);
-
-// let encryptedData = publicRSAKey.encrypt(data, "base64");
-// console.log("Encrypted Data: " + encryptedData);
-
-// let decryptedData = privateRSAKey.decrypt(encryptedData, "utf8");
-// console.log("Decrypted Data: " + decryptedData);

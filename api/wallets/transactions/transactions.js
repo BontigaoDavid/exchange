@@ -10,11 +10,9 @@ let transactionFunctions = {
 
         let address = req.params.address;
 
-        
 
         let transactions = await walletController.getWalletTransactions(address, limit);
-
-        console.log(typeof transactions);
+        
         res.json(transactions);
     }
 }

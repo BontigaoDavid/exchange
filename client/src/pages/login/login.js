@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styles from "./login.module.css";
 import encryptor from "../../algorithms/encryption.js";
 import Axios from "axios";
+import axios from 'axios';
 
 class Login extends Component {
     constructor(props) {
@@ -142,15 +143,16 @@ class Login extends Component {
     }
 
     submitEmail = () => {
-        fetch('/api/users/login/' + this.state.email)
-        .then(res => res.json())
-        .then(
-            (result) => {
-                if (result.publicKey) {
+        axios.get("/api/users/login/" + this.state.email).then(
+            (response) => {
+                let data = response.data
+
+                console.log(data);
+                if (data.publicKey) {
                     this.setState({
                         interface: 1,
-                        firstName: result.firstname,
-                        publicKey: result.publicKey
+                        firstName: data.firstname,
+                        publicKey: data.publicKey
                     });
                 }
 
@@ -174,11 +176,16 @@ class Login extends Component {
 
         Axios.post("/api/users/login/", { hash: encryptedCredentials })
         .then((response) => {
-            let token = response.data;
+            let tokenHash = response.data;
 
-            if (token) {
-                sessionStorage.setItem("user-token", token);
-                this.setState({ interface: 2 })
+            if (tokenHash) {
+                let AccessToken = {
+                    email: this.state.email,
+                    hash: tokenHash
+                }
+                
+                window.sessionStorage.setItem("AccessToken", JSON.stringify(AccessToken));
+                window.location = "/users/dashboard";
             }
 
             else {
@@ -226,7 +233,6 @@ class Login extends Component {
             }
 
             let encryptedUserObj = encryptor.publicEncrypt(this.state.publicKey, JSON.stringify(userObj));
-            
 
             Axios.post("/api/users/", { hash: encryptedUserObj }).then((response) => { console.log(response.data) });
             this.setState({ interface: 4});

@@ -1,12 +1,19 @@
 const express = require('express');
 const path = require('path');
+const port = process.env.PORT || 5000;
 
-const apiRoutes = require("./api");
 
 const app = express();
+const apiRoutes = require("./api");
+const serverController = require("./controllers/serverController.js")
 
 app.use(express.static(path.join(__dirname, './client/build')));
 app.use(express.json());
+
+//server controller
+app.get("/server", serverController.getDetails)
+app.post("/server", serverController.setRSAKeys)
+
 
 app.use("/api", apiRoutes);
 
@@ -17,5 +24,5 @@ app.get('*', function(_, res) {
       }
     })
   })
-const port = process.env.PORT || 5000;
+  
 app.listen(port);
