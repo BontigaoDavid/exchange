@@ -52,7 +52,7 @@ module.exports = {
                     time: time
                 }
                 
-                let isTransactionConfirmed = Boolean(currentBlockCount - block_height);
+                let isTransactionConfirmed = Boolean(currentBlockCount - block_height - 5);
                 transaction.confirmed = isTransactionConfirmed;
                 
                 //get transaction addresses
@@ -85,9 +85,6 @@ module.exports = {
         else {
             return false
         }
-    },
-    createTransaction: () => {
-        let txb = new bitcoin.TransactionBuilder(mainNet)
     }
 }
 

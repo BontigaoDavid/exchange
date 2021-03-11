@@ -1,4 +1,5 @@
 const walletController = require("../../../controllers/walletController.js");
+const transactionController = require("../../../controllers/transactionController");
 
 
 let transactionFunctions = {
@@ -14,6 +15,12 @@ let transactionFunctions = {
         let transactions = await walletController.getWalletTransactions(address, limit);
         
         res.json(transactions);
+    },
+    post: async (req, res) => {
+        let transactionDetails = req.body
+        transactionController.createTransaction( transactionDetails.senderAddress, transactionDetails.recepientAddress, transactionDetails.sendAmount, transactionDetails.privateKeyString).then(id => {
+            res.send(id);
+        });
     }
 }
 
