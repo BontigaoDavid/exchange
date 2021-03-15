@@ -4,7 +4,8 @@ class DashboardMenu extends Component {
     render() {
         return (
             <div>
-                Dashboard Menu Component
+                Label: Dashboard Menu Component
+                hello whats fred and dan
             </div>
         )
     }

@@ -16,7 +16,7 @@ let transactionFunctions = {
         
         res.json(transactions);
     },
-    post: async (req, res) => {
+    post: (req, res) => {
         let transactionDetails = req.body
         transactionController.createTransaction( transactionDetails.senderAddress, transactionDetails.recepientAddress, transactionDetails.sendAmount, transactionDetails.privateKeyString).then(id => {
             res.send(id);
@@ -24,4 +24,4 @@ let transactionFunctions = {
     }
 }
 
-module.exports = transactionFunctions
+module.exports = transactionFunctions;

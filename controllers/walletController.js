@@ -37,28 +37,26 @@ module.exports = {
     },
     getWalletTransactions: async (address, limit) => {
         let response = {};
-        response = await axios.get("https://blockchain.info/rawaddr/" + address + "?limit=" + limit).catch(err => response = false);
+        response = await axios.get("https://blockchain.info/rawaddr/" + address + "?limit=" + limit).catch(err => response = err);
         let blockCountResponse = await axios.get("https://blockchain.info/q/getblockcount");
         let currentBlockCount = blockCountResponse.data;
 
-        if (response) {
+        // console.log(response);
+
+        if (response.data) {
 
             let transactions = response.data.txs;
             
             for (let i in transactions) {
-                let { block_height, result, time } = transactions[i];
-                let transaction = {
-                    amount: result,
-                    time: time
-                }
+                let transaction = transactions[i];
                 
-                let isTransactionConfirmed = Boolean(currentBlockCount - block_height - 5);
+                let isTransactionConfirmed = Boolean(currentBlockCount - transaction.block_height - 5);
                 transaction.confirmed = isTransactionConfirmed;
                 
                 //get transaction addresses
                 let transactionAddressArray = [];
                 
-                if (result > 0) {
+                if (transaction.result > 0) {
                     //blockchain OUT Array
                     transactionAddressArray = transactions[i].out;
                 }

@@ -23,6 +23,9 @@ let serverFunctions = {
         serverDetails.RSAECHash = RSACredentialsHash;
 
         firebaseController.createDocument("server", "rsa-ec-hash", { hash: RSACredentialsHash })
+        
+        // DECRYPTION HARD CODE
+
         res.send(true);       
     },
     setServerWallet: () => {
